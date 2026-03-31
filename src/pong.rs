@@ -11,7 +11,8 @@ pub fn pong_game(app: &mut App) {
     );
     app.add_systems(
         Update,
-        (update_paddles, update_ball, update_score).run_if(in_state(GameState::Game)),
+        (update_paddles, update_ball, update_score, handle_esc_press)
+            .run_if(in_state(GameState::Game)),
     );
 }
 
@@ -44,11 +45,12 @@ impl ToString for Score {
 }
 
 fn spawn_camera_2d(mut commands: Commands) {
-    commands.spawn(Camera2d);
+    commands.spawn((DespawnOnExit(GameState::Game), Camera2d));
 }
 
 fn spawn_ball(mut commands: Commands) {
     commands.spawn((
+        DespawnOnExit(GameState::Game),
         Ball(Vec2 { x: 100., y: 0. }),
         Sprite {
             color: Color::default(),
@@ -60,6 +62,7 @@ fn spawn_ball(mut commands: Commands) {
 
 fn spawn_paddles(mut commands: Commands) {
     commands.spawn((
+        DespawnOnExit(GameState::Game),
         Paddle,
         Sprite {
             color: Color::Srgba(Srgba::hex("#0099FF").unwrap()),
@@ -78,6 +81,7 @@ fn spawn_paddles(mut commands: Commands) {
     ));
 
     commands.spawn((
+        DespawnOnExit(GameState::Game),
         Paddle,
         Sprite {
             color: Color::Srgba(Srgba::hex("#FF0099").unwrap()),
@@ -170,9 +174,15 @@ fn update_ball(
 }
 
 fn draw_score(mut commands: Commands, score: Res<Score>) {
-    commands.spawn(Text2d(score.to_string()));
+    commands.spawn((DespawnOnExit(GameState::Game), Text2d(score.to_string())));
 }
 
 fn update_score(mut text_ui: Single<&mut Text2d>, score: Res<Score>) {
     text_ui.0 = score.to_string();
+}
+
+fn handle_esc_press(key: Res<ButtonInput<KeyCode>>, mut state: ResMut<NextState<GameState>>) {
+    if key.pressed(KeyCode::Escape) {
+        state.set(GameState::Menu);
+    }
 }

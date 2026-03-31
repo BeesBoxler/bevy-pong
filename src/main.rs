@@ -2,9 +2,11 @@ use bevy::{prelude::*, window::WindowResolution};
 
 mod menu;
 mod pong;
+mod settings;
 
 use menu::main_menu;
 use pong::pong_game;
+use settings::settings_plugin;
 
 const W_WIDTH: f32 = 1080.;
 const W_HEIGHT: f32 = 720.;
@@ -31,6 +33,7 @@ fn main() -> AppExit {
 
     app.add_plugins(main_menu);
     app.add_plugins(pong_game);
+    app.add_plugins(settings_plugin);
 
     app.run()
 }

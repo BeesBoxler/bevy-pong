@@ -1,4 +1,4 @@
-use crate::{GameState, W_HEIGHT, W_WIDTH};
+use crate::{GameState, W_HEIGHT, W_WIDTH, settings::Settings};
 use bevy::{math::ops::abs, prelude::*};
 use rand::{Rng, rng};
 use std::ops::Range;
@@ -26,6 +26,7 @@ struct Paddle;
 enum Player {
     One,
     Two,
+    Ai,
 }
 
 #[derive(Component, Debug)]
@@ -60,7 +61,7 @@ fn spawn_ball(mut commands: Commands) {
     ));
 }
 
-fn spawn_paddles(mut commands: Commands) {
+fn spawn_paddles(mut commands: Commands, settings: Res<Settings>) {
     commands.spawn((
         DespawnOnExit(GameState::Game),
         Paddle,
@@ -77,7 +78,11 @@ fn spawn_paddles(mut commands: Commands) {
             },
             ..Default::default()
         },
-        Player::Two,
+        if settings.demo_mode {
+            Player::Ai
+        } else {
+            Player::One
+        },
     ));
 
     commands.spawn((
@@ -96,7 +101,7 @@ fn spawn_paddles(mut commands: Commands) {
             },
             ..Default::default()
         },
-        Player::Two,
+        Player::Ai,
     ));
 }
 

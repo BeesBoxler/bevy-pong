@@ -2,11 +2,13 @@ use bevy::app::AppExit;
 use bevy::prelude::*;
 
 use crate::GameState;
+use crate::settings::Settings;
 
 #[derive(Component)]
 enum MenuButton {
     StartGame,
     Quit,
+    ToggleDemo,
 }
 
 pub fn main_menu(app: &mut App) {
@@ -19,11 +21,13 @@ fn spawn_camera_2d(mut commands: Commands) {
 }
 
 fn handle_buttons(
-    buttons: Query<(&MenuButton, &Interaction), Changed<Interaction>>,
+    buttons: Query<(&MenuButton, &Interaction, &Children), Changed<Interaction>>,
+    mut text_color: Query<&mut TextColor>,
     mut game_state: ResMut<NextState<GameState>>,
+    mut settings: ResMut<Settings>,
     mut app_exit: MessageWriter<AppExit>,
 ) {
-    for (button, interaction) in buttons {
+    for (button, interaction, children) in buttons {
         match button {
             MenuButton::StartGame => match interaction {
                 Interaction::Pressed => game_state.set(GameState::Game),
@@ -35,11 +39,22 @@ fn handle_buttons(
                 }
                 _ => (),
             },
+            MenuButton::ToggleDemo => match interaction {
+                Interaction::Pressed => {
+                    settings.demo_mode = !settings.demo_mode;
+                    for child in children.iter() {
+                        if let Ok(mut text_color_component) = text_color.get_mut(child) {
+                            text_color_component.0 = get_demo_mode_style(settings.demo_mode)
+                        }
+                    }
+                }
+                _ => (),
+            },
         }
     }
 }
 
-pub fn spawn_buttons(mut commands: Commands) {
+pub fn spawn_buttons(mut commands: Commands, settings: Res<Settings>) {
     commands.spawn((
         DespawnOnExit(GameState::Menu),
         Visibility::Visible,
@@ -90,7 +105,21 @@ pub fn spawn_buttons(mut commands: Commands) {
                 BorderColor::all(Color::WHITE),
                 BackgroundColor(Color::BLACK),
                 children![(Text::new("Exit"))]
+            ),
+            (
+                Visibility::default(),
+                Transform::default(),
+                MenuButton::ToggleDemo,
+                Button,
+                children![(
+                    Text::new("Demo Mode"),
+                    TextColor(get_demo_mode_style(settings.demo_mode))
+                )]
             )
         ],
     ));
+}
+
+fn get_demo_mode_style(demo_enabled: bool) -> Color {
+    Color::Srgba(Srgba::hex(if demo_enabled { "#00FF00" } else { "#FF0000" }).unwrap())
 }

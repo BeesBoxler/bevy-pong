@@ -17,10 +17,7 @@ impl Default for Settings {
 }
 
 pub fn settings_plugin(app: &mut App) {
-    app.insert_resource(match load_settings() {
-        Ok(settings) => settings,
-        Err(_) => Default::default(),
-    });
+    app.insert_resource(load_settings().unwrap_or_default());
     app.init_resource::<Settings>();
 
     app.add_systems(Update, save_settings.run_if(resource_changed::<Settings>));
@@ -30,8 +27,6 @@ fn save_settings(_commands: Commands, settings: Res<Settings>) {
     let serialized_settings = serde_json::to_string(&settings.into_inner()).unwrap();
 
     write("settings.json", &serialized_settings).expect("Error, could not write settings");
-
-    println!("{}", serialized_settings);
 }
 
 fn load_settings() -> Result<Settings> {

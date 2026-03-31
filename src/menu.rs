@@ -29,26 +29,17 @@ fn handle_buttons(
 ) {
     for (button, interaction, children) in buttons {
         match button {
-            MenuButton::StartGame => match interaction {
-                Interaction::Pressed => game_state.set(GameState::Game),
-                _ => (),
+            MenuButton::StartGame => if interaction == &Interaction::Pressed { game_state.set(GameState::Game) },
+            MenuButton::Quit => if interaction == &Interaction::Pressed {
+                app_exit.write(AppExit::Success);
             },
-            MenuButton::Quit => match interaction {
-                Interaction::Pressed => {
-                    app_exit.write(AppExit::Success);
-                }
-                _ => (),
-            },
-            MenuButton::ToggleDemo => match interaction {
-                Interaction::Pressed => {
-                    settings.demo_mode = !settings.demo_mode;
-                    for child in children.iter() {
-                        if let Ok(mut text_color_component) = text_color.get_mut(child) {
-                            text_color_component.0 = get_demo_mode_style(settings.demo_mode)
-                        }
+            MenuButton::ToggleDemo => if interaction == &Interaction::Pressed {
+                settings.demo_mode = !settings.demo_mode;
+                for child in children.iter() {
+                    if let Ok(mut text_color_component) = text_color.get_mut(child) {
+                        text_color_component.0 = get_demo_mode_style(settings.demo_mode)
                     }
                 }
-                _ => (),
             },
         }
     }

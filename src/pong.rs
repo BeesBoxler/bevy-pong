@@ -1,7 +1,7 @@
 use crate::{GameState, W_HEIGHT, W_WIDTH, settings::Settings};
 use bevy::{math::ops::abs, prelude::*};
 use rand::{Rng, rng};
-use std::ops::Range;
+use std::{fmt::Display, ops::Range};
 
 pub fn pong_game(app: &mut App) {
     app.init_resource::<Score>();
@@ -25,7 +25,6 @@ struct Paddle;
 #[derive(Component, PartialEq, Debug)]
 enum Player {
     One,
-    Two,
     Ai,
 }
 
@@ -39,9 +38,9 @@ struct Score {
     p2: usize,
 }
 
-impl ToString for Score {
-    fn to_string(&self) -> String {
-        format!("{} | {}", self.p1, self.p2)
+impl Display for Score {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} | {}", self.p1, self.p2)
     }
 }
 
@@ -120,12 +119,10 @@ fn update_paddles(
             if keyboard.pressed(KeyCode::KeyS) {
                 transform.translation.y -= PADDLE_SPEED * d_t;
             }
-        } else {
-            if transform.translation.y > ball.translation.y {
-                transform.translation.y -= PADDLE_SPEED * d_t;
-            } else if transform.translation.y < ball.translation.y {
-                transform.translation.y += PADDLE_SPEED * d_t;
-            }
+        } else if transform.translation.y > ball.translation.y {
+            transform.translation.y -= PADDLE_SPEED * d_t;
+        } else if transform.translation.y < ball.translation.y {
+            transform.translation.y += PADDLE_SPEED * d_t;
         }
         transform.translation.y = transform
             .translation

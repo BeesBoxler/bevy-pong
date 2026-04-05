@@ -48,15 +48,16 @@ fn spawn_camera_2d(mut commands: Commands) {
     commands.spawn((DespawnOnExit(GameState::Game), Camera2d));
 }
 
-fn spawn_ball(mut commands: Commands) {
+fn spawn_ball(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
     commands.spawn((
         DespawnOnExit(GameState::Game),
         Ball(Vec2 { x: 100., y: 0. }),
-        Sprite {
-            color: Color::default(),
-            custom_size: Some(Vec2::new(30., 30.)),
-            ..Default::default()
-        },
+        Mesh2d(meshes.add(Circle::new(15.))),
+        MeshMaterial2d(materials.add(ColorMaterial::from_color(Color::default()))),
     ));
 }
 

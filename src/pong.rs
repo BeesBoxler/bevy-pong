@@ -177,7 +177,11 @@ fn update_ball(
 }
 
 fn draw_score(mut commands: Commands, score: Res<Score>) {
-    commands.spawn((DespawnOnExit(GameState::Game), Text2d(score.to_string())));
+    commands.spawn((
+        DespawnOnExit(GameState::Game),
+        Node::default(),
+        Text2d(score.to_string()),
+    ));
 }
 
 fn update_score(mut text_ui: Single<&mut Text2d>, score: Res<Score>) {

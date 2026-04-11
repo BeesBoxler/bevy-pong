@@ -4,3 +4,4 @@
 .cargo/config.toml
 
 settings.json
+.DS_Store
